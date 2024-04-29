@@ -1,10 +1,19 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+
+  h2 File Upload
 
   <form action="/upload" method="POST" enctype="multipart/form-data">
     <input type="file" name="file" required>
-    <button type="submit">Upload</button>
+    <button type="submit">Upload File</button>
+  </form>
+
+  br
+
+  h2 Malware Scan
+
+  <form action="/scan" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+    <button type="submit">Scan File</button>
   </form>

@@ -1,8 +1,5 @@
 const express = require('express');
-const fetch = require('node-fetch');
 const fileUpload = require('express-fileupload');
-const FormData = require('form-data'); 
-const fs = require('fs');
 const router = express.Router();
 
 router.use(fileUpload({
@@ -15,6 +12,7 @@ router.use(fileUpload({
 }));
 
 router.post('/', async function(req, res, next) {
+  // Was a file submitted?
   if (!req.files || !req.files.file) {
     return res.status(422).send('No files were uploaded');
   }
@@ -27,46 +25,11 @@ router.post('/', async function(req, res, next) {
   console.log(`File MD5 Hash: ${uploadedFile.md5}`);
   console.log(`File Mime Type: ${uploadedFile.mimetype}`);
 
-  // Scan the file for malware using the Verisys Antivirus API - the same concepts can be
-  // used to work with the uploaded file in different ways
-  try {
-    // Attach the uploaded file to a FormData instance
-    var form = new FormData();
-    form.append('file_name', uploadedFile.name);
-    form.append('file', fs.createReadStream(uploadedFile.tempFilePath), uploadedFile.name);
-
-    const headers = {
-      'X-API-Key': '<YOUR API KEY HERE>',
-      'Accept': '*/*'
-    };
-
-    // Send the file to the Verisys Antivirus API
-    const response = await fetch('https://eu1.api.av.ionxsolutions.com/v1/malware/scan/file', {
-      method: "POST",
-      body: form,
-      headers: headers
-    });
-
-    // Did we get a response from the API?
-    if (response.ok) {
-      const result = await response.json();
-
-      // Did the file contain a virus/malware?
-      if (result.status === 'clean') {
-        return res.send('Upload successful!');
-      } else {
-        return res.status(500).send('Uploaded file contained malware!');
-      }
-    } else {
-      throw new Error('Unable to scan file: ' + response.statusText);
-    }
-  } catch (error) {
-    // Forward the error to the Express error handler
-    return next(error);
-  } finally {
-    // Remove the uploaded temp file
-    fs.rm(uploadedFile.tempFilePath, () => {});
-  }
+  // Return a web page showing information about the file
+  res.send(`File Name: ${uploadedFile.name}<br>
+  File Size: ${uploadedFile.size}<br>
+  File MD5 Hash: ${uploadedFile.md5}<br>
+  File Mime Type: ${uploadedFile.mimetype}`);
 });
 
 module.exports = router;
