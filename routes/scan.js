@@ -33,7 +33,6 @@ router.post('/', async function(req, res, next) {
   try {
     // Attach the uploaded file to a FormData instance
     var form = new FormData();
-    form.append('file_name', uploadedFile.name);
     form.append('file', fs.createReadStream(uploadedFile.tempFilePath), uploadedFile.name);
 
     const headers = {
